@@ -1,15 +1,17 @@
-FROM node:9
+FROM node:20
 
 WORKDIR /app
 
-RUN npm install -g contentful-cli
+# add `/app/node_modules/.bin` to $PATH
+ENV PATH /app/node_modules/.bin:$PATH
 
-COPY package.json .
+# install app dependencies
+COPY package.json yarn.lock* package-lock.json* ./
+
 RUN npm install
 
-COPY . .
+# add app to container and attempt build
+COPY . ./
+RUN npm run build || true
 
-USER node
-EXPOSE 3000
-
-CMD ["npm", "run", "start:dev"]
+CMD ["npm", "start"]
